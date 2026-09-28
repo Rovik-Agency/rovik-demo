@@ -9,9 +9,7 @@ export default defineConfig({
         }
     },
     build: {
-        outDir: 'dist',
-        assetsDir: 'assets',
-        target: 'es2021',
+        target: 'es2020',
         sourcemap: false,
         chunkSizeWarningLimit: 900,
         rollupOptions: {

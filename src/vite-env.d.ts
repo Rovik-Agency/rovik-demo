@@ -8,7 +8,6 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_ANON_KEY?: string;
   readonly VITE_CALENDAR_BOOKING_URL?: string;
   readonly VITE_HAVALI_PROVIDER?: string;
-  readonly VITE_ENABLE_EMAIL_NOTIFICATIONS?: string;
 }
 
 interface ImportMeta {

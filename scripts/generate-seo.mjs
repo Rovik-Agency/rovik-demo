@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const siteUrl = (process.env.VITE_SITE_URL || 'https://rovik.example').replace(/\/$/, '');
+const siteUrl = (process.env.VITE_SITE_URL || 'https://rovik.co.uk').replace(/\/$/, '');
 const publicDir = path.resolve('public');
 
 const routes = [

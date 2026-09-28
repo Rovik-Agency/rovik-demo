@@ -67,7 +67,6 @@ create table if not exists contact_submissions (
   email text not null,
   company text,
   service text,
-  source text not null default 'contact',
   message text not null,
   status lead_status not null default 'New',
   ip_hash text,
@@ -80,7 +79,6 @@ create table if not exists project_builder_submissions (
   email text not null,
   company text,
   service text not null,
-  source text not null default 'project-builder',
   business_type text,
   features text[] not null default '{}',
   design_level text,
@@ -335,8 +333,8 @@ create table if not exists rate_limits (
   updated_at timestamptz not null default now()
 );
 
-create or replace function public.is_admin() returns boolean language sql stable security definer set search_path = public as $$
-  select exists(select 1 from public.profiles where id = auth.uid() and role in ('owner','admin','editor'));
+create or replace function is_admin() returns boolean language sql stable security definer as $$
+  select exists(select 1 from profiles where id = auth.uid() and role in ('owner','admin','editor'));
 $$;
 
 alter table profiles enable row level security;
@@ -366,13 +364,6 @@ alter table invoices enable row level security;
 alter table support_tickets enable row level security;
 alter table portal_messages enable row level security;
 alter table analytics_events enable row level security;
-
-
--- Grants required by PostgREST. RLS still decides what each role can access.
-grant usage on schema public to anon, authenticated;
-grant insert on public.leads, public.contact_submissions, public.project_builder_submissions, public.havali_conversations, public.havali_messages, public.newsletter_subscribers, public.analytics_events to anon, authenticated;
-grant select on public.services, public.projects, public.pricing_plans, public.testimonials, public.insights, public.faqs, public.team_members to anon, authenticated;
-grant all on public.profiles, public.leads, public.lead_notes, public.contact_submissions, public.project_builder_submissions, public.havali_conversations, public.havali_messages, public.services, public.projects, public.pricing_plans, public.testimonials, public.insights, public.faqs, public.team_members, public.homepage_content, public.media_assets, public.newsletter_subscribers, public.site_settings, public.seo_metadata, public.client_projects, public.milestones, public.tasks, public.deliverables, public.invoices, public.support_tickets, public.portal_messages, public.analytics_events to authenticated;
 
 -- Public read for published CMS content.
 create policy "public_read_published_services" on services for select using (published = true);
