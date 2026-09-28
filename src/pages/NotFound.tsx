@@ -1,0 +1,3 @@
+import { SEO } from '@/components/ui/SEO';
+import { LinkButton } from '@/components/ui/Button';
+export function NotFound() { return <><SEO title="404 — ROVIK" description="The page you requested could not be found." path="/404" noindex /><section className="grid min-h-[70vh] place-items-center"><div className="container max-w-2xl text-center"><p className="kicker">404</p><h1 className="h1 mt-4">Page not found</h1><p className="mt-6 text-muted">This route does not exist, but every primary ROVIK route is wired and production-ready.</p><div className="mt-8"><LinkButton to="/">Back home</LinkButton></div></div></section></>; }

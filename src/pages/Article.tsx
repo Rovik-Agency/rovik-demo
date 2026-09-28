@@ -1,0 +1,5 @@
+import { Navigate, useParams } from 'react-router-dom';
+import { SEO } from '@/components/ui/SEO';
+import { getInsight } from '@/data/insights';
+import { breadcrumbSchema } from '@/lib/seo';
+export function Article() { const { slug } = useParams(); const article = slug ? getInsight(slug) : undefined; if (!article) return <Navigate to="/404" replace/>; return <><SEO title={`${article.title} — ROVIK Insights`} description={article.excerpt} path={`/insights/${article.slug}`} schema={[breadcrumbSchema([{name:'Home', url:'/'},{name:'Insights', url:'/insights'},{name:article.title, url:`/insights/${article.slug}`}]), { '@context':'https://schema.org', '@type':'Article', headline: article.title, datePublished: article.date, author:{'@type':'Organization', name:'ROVIK'} }]} /><article className="section-pad"><div className="container max-w-4xl"><p className="kicker">{article.category} · {article.readTime}</p><h1 className="h1 mt-4">{article.title}</h1><p className="mt-6 text-xl text-muted">{article.excerpt}</p><div className="prose prose-lg mt-12 max-w-none dark:prose-invert">{article.body.map((p) => <p key={p}>{p}</p>)}</div></div></article></>; }

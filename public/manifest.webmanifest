@@ -1,0 +1,9 @@
+{
+  "name": "ROVIK",
+  "short_name": "ROVIK",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060710",
+  "theme_color": "#5B6CFF",
+  "icons": [{ "src": "/favicon.svg", "sizes": "64x64", "type": "image/svg+xml" }]
+}
