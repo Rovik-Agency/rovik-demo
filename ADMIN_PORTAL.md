@@ -1,4 +1,4 @@
-# ROVIK Admin + Client Portal Guide
+# ROVIK Admin + Client Portal
 
 ## Admin access
 
@@ -10,15 +10,14 @@ Open:
 
 ### Local demo mode
 
-If `.env` does not contain Supabase keys, the admin opens in demo/local mode so you can preview the UI.
+If `.env` does not contain Supabase keys, the admin opens in local demo mode. Data is stored in browser `localStorage`, so you can test create/edit/delete/export immediately.
 
 ### Production mode
 
-When Supabase is connected, `/admin` uses Supabase Auth.
-
-1. Run the SQL migration in `supabase/migrations/001_rovik_platform.sql`.
-2. Create a user in Supabase Dashboard → Authentication → Users.
-3. Make that user an admin/owner in SQL:
+1. Create a Supabase project.
+2. Run `supabase/migrations/001_rovik_platform.sql` in the SQL editor or Supabase CLI.
+3. Create your admin user in Supabase Authentication.
+4. Set the profile role:
 
 ```sql
 update public.profiles
@@ -26,116 +25,53 @@ set role = 'owner'
 where email = 'you@example.com';
 ```
 
-Allowed admin roles are:
+Allowed admin roles are `owner`, `admin`, and `editor`.
 
-```txt
-owner, admin, editor
-```
+## What the admin can manage
 
-Then sign in at `/admin` using that Supabase user email/password.
+The rebuilt dashboard supports live CRUD for:
 
-## Client portal access
+- Leads and lead pipeline: `New → Contacted → Qualified → Proposal → Won/Lost`
+- Havali conversations and qualified AI leads
+- Project Builder submissions
+- Contact submissions
+- Newsletter subscribers
+- Clients / profiles
+- Client projects
+- Milestones, tasks, deliverables, invoices and support tickets
+- Projects / case studies
+- Services
+- Pricing
+- Testimonials
+- Insights/articles
+- FAQs
+- Team
+- Homepage content
+- Media metadata
+- SEO metadata
+- Site settings
+
+Every module includes search, create, edit, view, delete, status updates where applicable, refresh and XLSX export.
+
+## Assigning a client portal project
 
 Open:
 
 ```txt
-/portal
+/admin
 ```
 
-The client portal only shows projects assigned to the logged-in client.
+Then:
 
-## How to assign a client portal
+1. Create or invite the user in Supabase Authentication.
+2. Go to Admin → Clients and confirm their profile exists.
+3. Set their profile role to `client`.
+4. Copy their `profiles.id`.
+5. Go to Admin → Client Projects.
+6. Create a new project with `client_id = profiles.id`.
+7. Add milestones, tasks, deliverables, invoices and support tickets using the created project id.
+8. The client logs in at `/portal` using their Supabase Auth email and password.
 
-### 1. Create the client user
+## Important production security note
 
-Supabase Dashboard → Authentication → Users → Invite/Create user.
-
-When the user is created, the migration trigger creates a row in `public.profiles` with `role = client`.
-
-### 2. Confirm the client profile
-
-```sql
-select id, email, role
-from public.profiles
-where email = 'client@example.com';
-```
-
-### 3. Create a project for that client
-
-```sql
-insert into public.client_projects (
-  client_id,
-  title,
-  description,
-  status,
-  progress,
-  start_date,
-  due_date
-)
-select
-  id,
-  'Website Redesign',
-  'New ROVIK client website build.',
-  'active',
-  15,
-  current_date,
-  current_date + interval '30 days'
-from public.profiles
-where email = 'client@example.com';
-```
-
-### 4. Add milestones
-
-```sql
-insert into public.milestones (project_id, title, status, due_date, sort_order)
-select id, 'Discovery and scope', 'in_progress', current_date + interval '7 days', 1
-from public.client_projects
-where title = 'Website Redesign';
-```
-
-### 5. Add tasks, deliverables, invoices and messages
-
-Use these tables:
-
-```txt
-milestones
-tasks
-deliverables
-invoices
-portal_messages
-support_tickets
-```
-
-The client can now sign in at `/portal` with their Supabase Auth account and see only their assigned project data.
-
-## Admin dashboard tabs
-
-The admin dashboard includes these operational tabs:
-
-```txt
-Leads
-Havali
-Project Builder
-Clients
-Client Projects
-Milestones
-Tasks
-Deliverables
-Invoices
-Support
-Projects
-Services
-Pricing
-Testimonials
-Insights
-FAQs
-Team
-Homepage
-Media
-Newsletter
-Contact
-SEO
-Settings
-```
-
-CSV/XLSX export is available from each tab.
+Do not expose a Supabase service-role key in the frontend. Creating Auth users must happen in Supabase Dashboard or a secure server/edge function. The frontend admin safely manages public tables through Supabase Auth + RLS.

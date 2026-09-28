@@ -113,3 +113,22 @@ where email = 'you@example.com';
 ```
 
 To assign a client portal, create the client Auth user, then insert a `client_projects` row with `client_id = profiles.id`. See `ADMIN_PORTAL.md` for the full SQL flow.
+
+## Admin dashboard update
+
+The `/admin` dashboard has been rebuilt as a production control center with role-checked auth, CRM pipeline, CRUD forms, status updates, record drawer, search, refresh, demo localStorage mode and XLSX export. See `ADMIN_PORTAL.md` for production setup and client portal assignment.
+
+## Scroll animations
+
+Global GSAP + ScrollTrigger reveal animations are enabled across the website through `src/components/ui/ScrollAnimations.tsx`. They respect `prefers-reduced-motion` and are disabled for admin workspace areas that should remain stable.
+
+### Build fix note
+
+This build includes `src/vite-env.d.ts` for Vite `import.meta.env` typing and uses ES2021 TypeScript libs so APIs such as `String.replaceAll` compile on Vercel and Windows.
+
+If your deployed GitHub repo still shows `Property env does not exist on type ImportMeta`, make sure these two files are committed:
+
+- `src/vite-env.d.ts`
+- `tsconfig.app.json`
+
+Then redeploy.
