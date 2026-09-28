@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type PostgrestError } from '@supabase/supabase-js';
 import { env, hasSupabase } from './env';
 
 export const supabase = hasSupabase
@@ -8,6 +8,7 @@ export const supabase = hasSupabase
   : null;
 
 type LocalRow = Record<string, unknown> & { id?: string; created_at?: string; updated_at?: string };
+type MutationResult<T = unknown> = { data: T | null; error: PostgrestError | Error | null };
 
 function localKey(table: string) {
   return `rovik:${table}`;
@@ -15,7 +16,11 @@ function localKey(table: string) {
 
 function readLocal<T>(table: string): T[] {
   if (typeof localStorage === 'undefined') return [];
-  return JSON.parse(localStorage.getItem(localKey(table)) || '[]') as T[];
+  try {
+    return JSON.parse(localStorage.getItem(localKey(table)) || '[]') as T[];
+  } catch {
+    return [];
+  }
 }
 
 function writeLocal<T>(table: string, rows: T[]) {
@@ -30,25 +35,41 @@ export function seedLocalTable<T extends LocalRow>(table: string, rows: T[]) {
   writeLocal(table, rows.map((row) => ({ id: crypto.randomUUID(), created_at: new Date().toISOString(), ...row })));
 }
 
-export async function insertRecord<T extends Record<string, unknown>>(table: string, payload: T) {
+function withTimestamps<T extends Record<string, unknown>>(payload: T) {
+  const now = new Date().toISOString();
+  return {
+    ...payload,
+    created_at: payload.created_at || now,
+    updated_at: payload.updated_at || now
+  };
+}
+
+/**
+ * Public form tables are protected by RLS. Do not use `.select()` after insert,
+ * because that requires a SELECT policy and causes 401/403 for anonymous visitors.
+ */
+export async function insertRecord<T extends Record<string, unknown>>(table: string, payload: T): Promise<MutationResult<LocalRow>> {
   if (!supabase) {
     const existing = readLocal<LocalRow>(table);
-    const row = { id: crypto.randomUUID(), ...payload, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    const row = { id: crypto.randomUUID(), ...withTimestamps(payload) };
     existing.unshift(row);
     writeLocal(table, existing);
     return { data: row, error: null };
   }
-  return supabase.from(table).insert(payload).select('*').single();
+
+  const { error } = await supabase.from(table).insert(payload);
+  return { data: null, error };
 }
 
-export async function updateRecord<T extends Record<string, unknown>>(table: string, id: string, payload: T, idColumn = 'id') {
+export async function updateRecord<T extends Record<string, unknown>>(table: string, id: string, payload: T, idColumn = 'id'): Promise<MutationResult<LocalRow>> {
   if (!supabase) {
     const existing = readLocal<LocalRow>(table);
     const updated = existing.map((row) => String(row[idColumn]) === String(id) ? { ...row, ...payload, updated_at: new Date().toISOString() } : row);
     writeLocal(table, updated);
     return { data: updated.find((row) => String(row[idColumn]) === String(id)) || null, error: null };
   }
-  return supabase.from(table).update(payload).eq(idColumn, id).select('*').single();
+  const { data, error } = await supabase.from(table).update(payload).eq(idColumn, id).select('*').maybeSingle();
+  return { data: (data as LocalRow | null) ?? null, error };
 }
 
 export async function deleteRecord(table: string, id: string, idColumn = 'id') {

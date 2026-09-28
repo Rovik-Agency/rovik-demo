@@ -151,3 +151,27 @@ Then import the GitHub repo into Vercel. Use:
 
 Read `VERCEL_DEPLOY.md` for the full production checklist.
 
+
+## Latest Supabase 400/401 fix
+
+If you see `401` on `leads`, `400` on contact/project submissions, or `notify 500`, use the fixed build and run the patch migration:
+
+```bash
+# app build
+npm install
+npm run build
+```
+
+Then in Supabase SQL Editor run:
+
+```txt
+supabase/migrations/002_public_forms_notifications_fix.sql
+```
+
+Email notifications are intentionally disabled by default:
+
+```txt
+VITE_ENABLE_EMAIL_NOTIFICATIONS=false
+```
+
+Turn it on only after deploying `supabase/functions/notify` and adding Resend secrets.

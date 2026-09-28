@@ -5,7 +5,8 @@ export const env = {
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
   bookingUrl: import.meta.env.VITE_CALENDAR_BOOKING_URL || '/contact',
-  havaliProvider: import.meta.env.VITE_HAVALI_PROVIDER || 'hybrid'
+  havaliProvider: import.meta.env.VITE_HAVALI_PROVIDER || 'hybrid',
+  enableEmailNotifications: import.meta.env.VITE_ENABLE_EMAIL_NOTIFICATIONS === 'true'
 };
 
 export const hasSupabase = Boolean(env.supabaseUrl && env.supabaseAnonKey && env.supabaseUrl.includes('supabase'));

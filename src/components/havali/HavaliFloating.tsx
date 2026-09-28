@@ -16,9 +16,9 @@ export function HavaliFloating() {
   if (location.pathname === '/havali' || location.pathname.startsWith('/admin') || location.pathname.startsWith('/portal')) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-4 right-4 z-[45] sm:bottom-5 sm:right-5">
+    <div className="pointer-events-none fixed bottom-4 right-4 z-[70] sm:bottom-5 sm:right-5">
       {open ? (
-        <div className="havali-floating-panel pointer-events-auto fixed right-3 z-[45] overflow-hidden sm:right-5">
+        <div className="havali-floating-panel pointer-events-auto fixed right-3 z-[70] overflow-hidden sm:right-5">
           <HavaliChat compact />
         </div>
       ) : null}
