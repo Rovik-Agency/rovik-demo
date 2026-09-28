@@ -132,3 +132,22 @@ If your deployed GitHub repo still shows `Property env does not exist on type Im
 - `tsconfig.app.json`
 
 Then redeploy.
+
+## Vercel production deploy
+
+This project is ready for Vercel. It includes `vercel.json`, SPA rewrites, production headers, sitemap/robots generation and Vercel environment examples.
+
+```bash
+npm install
+npm run vercel:check
+npm run build
+```
+
+Then import the GitHub repo into Vercel. Use:
+
+- Framework: Vite
+- Build command: `npm run build`
+- Output directory: `dist`
+
+Read `VERCEL_DEPLOY.md` for the full production checklist.
+
